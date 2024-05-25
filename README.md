@@ -3,7 +3,7 @@
 **Using Monte-Carlo method to simulate the paths of given stocks and time frames.**
 ### Class Designs
  - Stock class:
-   - Generate historical aggregated return prices, average daily return, and standard deviation of the average daily return given a ticker and a timeframe.
+   - Generates historical aggregated return prices, average daily return, and standard deviation of the average daily return given a ticker and a timeframe.
    - Usage:
      - Stock('ticker', start_date, end_date)
      - get_dates(), 
