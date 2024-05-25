@@ -88,31 +88,35 @@ class MCStockSimulator(Stock):
         
         return prices
     
-    def plot_simulated_stock_values(self, num_trials = 1):
-        """
-        Plots the simulated stock values on a graph. It is possible to plot
-        multiple simulations on the same graph with the optional parameter
-        num_trials. The default value is 1. Returns nothing.
-        """
-        x_axis = np.linspace(0, self.maturity_time, 
-                             num = self.periods_per_year * self.maturity_time + 1)
-        # Create the x axis. The length should be the periods per year times
-        # the time to maturity plus one for the current stock price
-        
-        # fig = plt.figure()
-        graph = plt.subplot()
-        graph.set_title(f'{num_trials} simulated trials for {self.ticker}')
-        graph.set_xlabel(f'years')
-        graph.set_ylabel(f'$ value')
-        # Create the graph and label the axes
-    
-        for _ in range(num_trials):
+    def plot_simulated_stock_values(self, num_trials=1):
+            """
+            Plots the simulated stock values on a graph. It is possible to plot
+            multiple simulations on the same graph with the optional parameter
+            num_trials. The default value is 1. Returns nothing.
+            """
+            x_axis = np.linspace(0, self.maturity_time, 
+                                 num = self.periods_per_year * self.maturity_time + 1)
+            # Create the x axis. The length should be the periods per year times
+            # the time to maturity plus one for the current stock price
             
-            prices = self.generate_simulated_stock_values()
-            graph.plot(x_axis, prices)
-            # For each trial, generate a simulated stock values array and plot it
-            # with the x axis
+            # fig = plt.figure()
+            plt.figure(figsize = (10,8))
+   
+            # Create the graph and label the axes
         
+            
+            for i in range(num_trials):
+                
+                prices = self.generate_simulated_stock_values()
+                plt.plot(x_axis, prices)
+                # For each trial, generate a simulated stock values array and plot it
+                # with the x axis
+            # print(self.ticker)
+            ticker = self.ticker
+            plt.title(f'{num_trials} simulated trials for {ticker}')
+            plt.xlabel(f'years')
+            plt.ylabel(f'$ value')
+    
         
     
 # if __name__ == '__main__':
