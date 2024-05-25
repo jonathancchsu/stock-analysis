@@ -14,9 +14,9 @@ NVDAsim = MCStockSimulator(NVDA)
 SMCIsim = MCStockSimulator(SMCI)
 TSMsim = MCStockSimulator(TSM)
 
-NVDAsim.plot_simulated_stock_values(5)
-SMCIsim.plot_simulated_stock_values(5)
-TSMsim.plot_simulated_stock_values(5)
+NVDAsim.plot_simulated_stock_values(50)
+SMCIsim.plot_simulated_stock_values(50)
+TSMsim.plot_simulated_stock_values(50)
 
 stocks = [NVDA, SMCI, TSM]
 
