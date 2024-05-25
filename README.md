@@ -19,5 +19,5 @@
 
 ### Functions
  - plot_stock_values:
-   - Plotting the percent changes of stock(s) (baseline 100 using the price on the first day).
+   - Plotting the percent changes of stock(s) (using the price on the first day as baseline, starting at 100).
   
