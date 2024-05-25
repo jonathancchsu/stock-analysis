@@ -34,6 +34,7 @@ class MCStockSimulator(Stock):
         self.rate_of_return = stock.avg_daily_return
         self.sigma = stock.avg_daily_return_sigma
         self.periods_per_year = p
+        self.ticker = stock.ticker
         # Store each of the parameters as a data member
     
     def __repr__(self):
@@ -100,7 +101,7 @@ class MCStockSimulator(Stock):
         
         # fig = plt.figure()
         graph = plt.subplot()
-        graph.set_title(f'{num_trials} simulated trials')
+        graph.set_title(f'{num_trials} simulated trials for {self.ticker}')
         graph.set_xlabel(f'years')
         graph.set_ylabel(f'$ value')
         # Create the graph and label the axes
