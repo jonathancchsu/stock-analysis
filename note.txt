@@ -1,0 +1,35 @@
+Classes
+Stock Class (t)
+	Variables 
+		ticker (string)
+		Historical prices (dataframe)
+		Aggregate returns (dataframe)
+		Daily return average (float)
+		Daily return std (float)
+		
+	Functions
+		Get historical prices (start, end)
+		Calculate daily return average
+		Calculate daily return std
+		Calculate aggregate return
+		Plot price graph
+			Plot the historical closing prices
+		Plot aggregate return graph
+			Calculate and plot the aggregate returns
+			Modify the Aggregate returns (base = 100)
+		
+FCN Class (stocks np.array of String, KO, Strike, KI, Tenor)
+	Variables
+		Stocks (np.array of String)
+		KO (float) (write 110% as 110)
+		Strike (float)
+		KI
+		Tenor (int in days)
+	Functions
+		Plot stocks
+			Create a df with the aggregate returns on each stock
+			Plot all the aggregate returns on a single graph
+		Backtest KO
+			From the beginning date, look forward Tenor days 
+			If all three have a value > 110, 
+MonteCarlo Simulation Class
