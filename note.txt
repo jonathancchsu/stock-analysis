@@ -1,11 +1,11 @@
 Classes
-Stock Class (t)
+Stock Class (ticker, start, end)
 	Variables 
 		ticker (string)
-		Historical prices (dataframe)
-		Aggregate returns (dataframe)
-		Daily return average (float)
-		Daily return std (float)
+		Historical prices 
+		Aggregate returns 
+		Daily return average
+		Daily return std 
 		
 	Functions
 		Get historical prices (start, end)
