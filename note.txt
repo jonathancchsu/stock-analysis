@@ -29,10 +29,17 @@ FCN Class (stocks np.array of String, KO, Strike, KI, Tenor)
 		Plot stocks
 			Create a df with the aggregate returns on each stock
 			Plot all the aggregate returns on a single graph
-		Backtest KO
+		Backtest KO (start, end)
 			From the beginning date, look forward Tenor days 
-			If all three have a value > 110
-		Backtest KI
-		Backtest Exercise
-			If KI then run backtest KI first
+			If all three have a value > KO
+			Plot a graph of startdates which KO
+		Backtest KI (start, end)
+			From the beginning date, look forward Tenor days 
+			If all three have a value < KI
+			Plot a graph of start dates that KI
+		Backtest Exercise (start, end)
+			If KI then run backtest KI first with a single date
+			If does KI, then check the lowest perfoming stock under the strike or not
+			Plot a graph of start dates that Exercise
+	
 MonteCarlo Simulation Class
