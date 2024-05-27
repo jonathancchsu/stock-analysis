@@ -31,5 +31,8 @@ FCN Class (stocks np.array of String, KO, Strike, KI, Tenor)
 			Plot all the aggregate returns on a single graph
 		Backtest KO
 			From the beginning date, look forward Tenor days 
-			If all three have a value > 110, 
+			If all three have a value > 110
+		Backtest KI
+		Backtest Exercise
+			If KI then run backtest KI first
 MonteCarlo Simulation Class
