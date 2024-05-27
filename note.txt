@@ -9,8 +9,7 @@ Stock Class (ticker, start, end)
 		
 	Functions
 		Get historical prices (start, end)
-		Calculate daily return average
-		Calculate daily return std
+		Calculate daily return average and std
 		Calculate aggregate return
 		Plot price graph
 			Plot the historical closing prices
@@ -18,21 +17,24 @@ Stock Class (ticker, start, end)
 			Calculate and plot the aggregate returns
 			Modify the Aggregate returns (base = 100)
 		
-FCN Class (stocks np.array of String, KO, Strike, KI, Tenor)
+FCN Class (stocks np.array of Stock, KO, Strike, KI, Tenor)
 	Variables
-		Stocks (np.array of String)
+		Stocks (np.array of Stock)
 		KO (float) (write 110% as 110)
 		Strike (float)
 		KI
+		Guaranteed days
 		Tenor (int in days)
 	Functions
 		Plot stocks
-			Create a df with the aggregate returns on each stock
 			Plot all the aggregate returns on a single graph
 		Backtest KO (start, end)
 			From the beginning date, look forward Tenor days 
 			If all three have a value > KO
+
 			Plot a graph of startdates which KO
+			OR
+			Return a list of start dates with corresponding dates of KO/no KO, #of days util KO
 		Backtest KI (start, end)
 			From the beginning date, look forward Tenor days 
 			If all three have a value < KI
