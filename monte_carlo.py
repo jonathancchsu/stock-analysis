@@ -101,11 +101,11 @@ class MCStockSimulator(Stock):
             
             # fig = plt.figure()
             plt.figure(figsize = (10,8))
-   
+
             # Create the graph and label the axes
         
             
-            for i in range(num_trials):
+            for _ in range(num_trials):
                 
                 prices = self.generate_simulated_stock_values()
                 plt.plot(x_axis, prices)
