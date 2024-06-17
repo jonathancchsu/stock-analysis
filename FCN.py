@@ -56,7 +56,7 @@ class FCN(Stock):
     # Ensure labels are present for the legend
     for stock in self.stocks:
       # You can use stock.ticker or any other unique property of the stock
-      plt.plot(stock.historical_prices['adjusted_daily_returns'], label=stock.ticker)
+      plt.plot(stock.historical_prices['aggregated_daily_returns'], label=stock.ticker)
     
     plt.xlabel('Date')
     plt.ylabel('Percent Aggregate Return') 
@@ -66,12 +66,19 @@ class FCN(Stock):
     plt.show()
 
   def backtest_KO(self, start_date, end_date):
-    trading_dates = pd.to_datetime(self.stocks[0].historical_prices['date'])
-    adjusted_start, adjusted_end = self.adjust_dates(start_date, end_date, trading_dates)
+    trading_dates = self.stocks[0].historical_prices['Date']
+    if start_date and end_date not in trading_dates:
+      msg = f'{start_date} and {end_date} are not trading dates.' 
+    if start_date or end_date not in trading_dates:
+      msg = f'{start_date} is not a trading date.' if start_date not in trading_dates \
+            else f'{end_date} is not a trading date.'
+      return msg
+    # trading_dates = pd.to_datetime(self.stocks[0].historical_prices['Date'])
+    # adjusted_start, adjusted_end = self.adjust_dates(start_date, end_date, trading_dates)
     ko_dates = []
     
     for date in trading_dates:
-      if date < pd.to_datetime(adjusted_start) or date > pd.to_datetime(adjusted_end):
+      if date < pd.to_datetime(start_date) or date > pd.to_datetime(end_date):
         continue
       
       try:

@@ -6,9 +6,9 @@ from FCN import *
 start_date = '2022-06-14'
 end_date = '2023-06-14'
 
-NVDA = Stock('NVDA', start_date, end_date)
-SMCI = Stock('SMCI', start_date, end_date)
-TSM = Stock('TSM', start_date, end_date)
+NVDA = Stock('NVDA')
+SMCI = Stock('SMCI')
+TSM = Stock('TSM')
 
 # NVDAsim = MCStockSimulator(NVDA)
 # SMCIsim = MCStockSimulator(SMCI)
@@ -20,10 +20,13 @@ TSM = Stock('TSM', start_date, end_date)
 
 stocks = [NVDA, SMCI, TSM]
 
-fcn = FCN(stocks, 120, 110, 100, 27, 252)
+for stock in stocks:
+  stock.plot_historical_prices()
+# fcn = FCN(stocks, 120, 110, 100, 27, 252)
 
-ko_dates = fcn.backtest_KO(start_date, end_date)
-print(ko_dates)
-fcn.graph_backtest_KO(start_date, end_date, ko_dates)
+# fcn.simulate_KO
+# ko_dates = fcn.backtest_KO(start_date, end_date)
+# print(ko_dates)
+# fcn.graph_backtest_KO(start_date, end_date, ko_dates)
 
 # fcn.plot_stocks()
