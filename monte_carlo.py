@@ -5,8 +5,7 @@ from math import exp
 from stock import *
 
 
-# simlulate over the past 758 trading dates 
-class MCStockSimulator(Stock):
+class MCStockSimulator:
     """
     The MCStockSimulator class is designed to represent a Monte Carlo simulation
     of a stock over the period of an option's life time. The parameters required
@@ -15,7 +14,7 @@ class MCStockSimulator(Stock):
     and the number of periods per year.
     """
     
-    def __init__(self, stock, t=252, p=252):
+    def __init__(self, stock, t=252, p=2):
         """
 
         Parameters
@@ -31,6 +30,7 @@ class MCStockSimulator(Stock):
             The number of periods per year
         """
         
+        self.stock = stock
         self.stock_price = 100
         self.maturity_time = t
         self.rate_of_return, self.sigma = self.calculate_mu_sigma()
@@ -56,9 +56,12 @@ class MCStockSimulator(Stock):
         avg_daily_return_sigma: float 
             The standard deviation of the daily returns.
         """
+
+        past_758_close = self.stock.historical_prices['Close'].iloc[-758:]
+        past_758_close = past_758_close.reset_index(drop=True).to_numpy()
         # Calculate daily returns
         # Using the formula: (P_t - P_t-1) / P_t-1, where P_t is the price at time t
-        daily_returns = (self.stock.historical_prices_USD['Close'][1:] - self.stock.historical_prices_USD['Close'][:-1]) / self.historical_prices_USD['Close'][:-1]
+        daily_returns = (past_758_close[1:] - past_758_close[:-1]) / past_758_close[:-1]
         # Calculate the average of these daily returns
         average_return = np.mean(daily_returns)
 
@@ -85,29 +88,29 @@ class MCStockSimulator(Stock):
                         
         return simulation
     
-    def generate_simulated_stock_values(self):
+    def generate_simulated_stock_values(self, num_trials=10):
         """
         Generates and returns an numpy.array of simulated stock values for the
         time period and number of periods per year
         """
         
-        returns = self.generate_simulated_stock_returns()
-        # print(returns)
-        # generate the array simulated stock returns
-        prices = np.array([self.stock_price])
-        # initialize the array containing the simulated stock prices, starting 
-        # with the stock price today.
-        
-        for i in range(len(returns)):
-            # print(f'{returns[i]}')
-            prices = np.append(prices, prices[i] * exp(returns[i]))
-            # for each item in the returns array, multiply it by the price at the
-            # same index and append it to the prices array. This generates the
-            # array of prices. 
-        
-        return prices
+        list_of_prices = []  # Use a list to store arrays of prices for each trial
+
+        for _ in range(num_trials):
+            returns = self.generate_simulated_stock_returns()
+            prices = np.array([self.stock_price])  # Initialize the array with the initial stock price
+
+            for I in range(len(returns)):
+                next_price = prices[-1] * exp(returns[I])  # Calculate the next price
+                prices = np.append(prices, next_price)  # Append the next price to the prices array
+                # for each item in the returns array, multiply it by the price at the
+                # same index and append it to the prices array. This generates the
+                # array of prices. 
+            list_of_prices.append(prices)  # Append the complete prices array for this trial to the list
+
+        return list_of_prices
     
-    def plot_simulated_stock_values(self, num_trials=1):
+    def plot_simulated_stock_values(self, simulated_stock_values):
             """
             Plots the simulated stock values on a graph. It is possible to plot
             multiple simulations on the same graph with the optional parameter
@@ -122,25 +125,14 @@ class MCStockSimulator(Stock):
             plt.figure(figsize = (10,8))
 
             # Create the graph and label the axes
-        
             
-            for _ in range(num_trials):
-                
-                prices = self.generate_simulated_stock_values()
+            trials_count = len(simulated_stock_values)
+            for i in range(trials_count):
+                prices = simulated_stock_values[i]
                 plt.plot(x_axis, prices)
                 # For each trial, generate a simulated stock values array and plot it
                 # with the x axis
-            # print(self.ticker)
             ticker = self.ticker
-            plt.title(f'{num_trials} simulated trials for {ticker}')
-            plt.xlabel(f'years')
-            plt.ylabel(f'$ value')
-    
-        
-    
-# if __name__ == '__main__':
-#     sim = MCStockSimulator(100, 252, 0.0007, 0.30, 252)
-#     print(sim)
-#     returns = sim.generate_simulated_stock_returns()
-#     # print(sim.generate_simulated_stock_values())
-#     sim.plot_simulated_stock_values(10)
+            plt.title(f'{trials_count} simulated trials for {ticker}')
+            plt.xlabel(f'Days')
+            plt.ylabel(f'$ Value')

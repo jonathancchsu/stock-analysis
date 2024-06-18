@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from stock import *
 
-class FCN(Stock):
+class FCN:
   """
   FNC description
   """
 
-  def __init__(self, stocks, ko, ki, s=100, g=27, t=252):
+  def __init__(self, stocks, ko=120, ki=60, s=80, g=27, t=252):
     """
     Parameters
     ----------
@@ -129,7 +127,7 @@ class FCN(Stock):
     for ko_date in ko_dates:
       ko_start = pd.to_datetime(ko_date)
       ko_end = ko_start + pd.Timedelta(days=self.tenor)
-      plt.axvspan(ko_start, ko_end, color='lightcoral', alpha=0.3, label='KO Period' if ko_date == ko_dates[0] else "")
+      plt.axvspan(ko_start, ko_end, color='lightcoral', alpha=0.5, label='KO Period' if ko_date == ko_dates[0] else "")
 
     # Add a horizontal line for the KO level
     plt.axhline(y=self.ko, color='black', linestyle='--', linewidth=2, label='KO Level')
@@ -150,6 +148,47 @@ class FCN(Stock):
     plt.gcf().autofmt_xdate()  # Rotation
 
     plt.show()
+
+  def simulate_KO(self, list_of_simulations, num_trials=1000, start_days_from_today=0):
+    start_idx = start_days_from_today + self.guranteed_days
+    end_idx = self.tenor
+    list_of_ko_percentage = []
+
+    for simulation in list_of_simulations:
+      list_of_prices = simulation.generate_simulated_stock_values(num_trials)
+      count = 0.0
+
+      # Initialize the plot for each stock simulation
+      plt.figure(figsize=(10, 6))
+      
+      plt.xlabel('Days')
+      plt.ylabel('Stock Price')
+      plt.axhline(y=self.ko, color='black', linestyle='--', label='KO Threshold')
+
+      for prices in list_of_prices:
+        modified_prices = prices[start_idx:end_idx]
+        days = np.arange(len(prices))
+
+        # Check if any price in the modified range exceeds the KO threshold
+        if np.max(modified_prices) > self.ko:
+          count += 1
+          plt.plot(days, prices, label='Above KO', color='red', alpha=0.5)
+        else:
+          plt.plot(days, prices, label='Below KO', color='green', alpha=0.5)
+
+      list_of_ko_percentage.append(f'{simulation.ticker}: {count / num_trials * 100:.2f}% KO')
+      plt.title(f'{num_trials} Simulation Results for {simulation.ticker}: {count / num_trials * 100:.2f}% KO')
+
+      # Highlight the test period
+      plt.axvspan(start_days_from_today, end_idx, color='lightcoral', alpha=0.3, label='Test Period')
+
+      # Add legend and show plot
+      handles, labels = plt.gca().get_legend_handles_labels()
+      by_label = dict(zip(labels, handles))  # Remove duplicate labels
+      plt.legend(by_label.values(), by_label.keys())
+      plt.show()
+
+    return list_of_ko_percentage
 
   def backtest_KI(self, start_date, end_date):
     pass

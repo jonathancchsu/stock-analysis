@@ -79,7 +79,7 @@ class Stock:
         df = data[['Date' , 'Close']].copy()
         # print(df)
         df['Close'] = np.array(df['Close'])
-        df['Date'] = pd.to_datetime(df['Date']).dt.date
+        df['Date'] = pd.to_datetime(df['Date'], utc=True).dt.date
         self.historical_prices = df
     
     def historical_aggre_return(self):
