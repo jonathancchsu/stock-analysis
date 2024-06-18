@@ -41,10 +41,11 @@ class Stock:
         """
         # Calculate aggregated daily returns
         # Using the formula: (P_t - P_0) / P_0, where P_t is the price at time t
-        start_date = pd.to_datetime(start_date)
-        end_date = pd.to_datetime(end_date)
+        start_date = pd.to_datetime(start_date).date()
+        end_date = pd.to_datetime(end_date).date()
         df = self.historical_prices[['Date' , 'Close']]
         filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+        filtered_df = filtered_df.reset_index(drop=True)
         filtered_returns = (filtered_df['Close'][1:] - filtered_df['Close'][0]) / filtered_df['Close'][0]
         # Adding 0 at the start for baseline for day 1 of observation
     
@@ -52,7 +53,7 @@ class Stock:
         # Making the list into percentage changes
         filtered_returns = (filtered_returns + 1) * 100
         filtered_returns = np.array(filtered_returns)
-        # print(df)
+
         return filtered_returns
 
     def plot_historical_prices(self):
@@ -75,11 +76,10 @@ class Stock:
 
         data = pd.read_csv(f'stock_data/{self.ticker}.csv')
         # print(data)
-        df = data[['Date' , 'Close']]
+        df = data[['Date' , 'Close']].copy()
         # print(df)
-        df = df.copy()
         df['Close'] = np.array(df['Close'])
-        df['Date'] = pd.to_datetime(df['Date'])
+        df['Date'] = pd.to_datetime(df['Date']).dt.date
         self.historical_prices = df
     
     def historical_aggre_return(self):

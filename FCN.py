@@ -53,78 +53,78 @@ class FCN(Stock):
   
   def plot_stocks(self):
     plt.figure(figsize=(10, 8))
-    # Ensure labels are present for the legend
     for stock in self.stocks:
-      # You can use stock.ticker or any other unique property of the stock
-      plt.plot(stock.historical_prices['aggregated_daily_returns'], label=stock.ticker)
+      plt.plot(stock.historical_prices['aggregated_historical_returns'], label=stock.ticker)
     
     plt.xlabel('Date')
     plt.ylabel('Percent Aggregate Return') 
-    plt.title(f'Historical Aggregate Return')
-    # from {self.stocks[0].start_date} to {self.stocks[0].stock.end_date}
+    plt.title(f'Aggregate Historical Return')
     plt.legend()
     plt.show()
 
   def backtest_KO(self, start_date, end_date):
+    # Converting the string to datetime
+    start_date = pd.to_datetime(start_date).date()
+    end_date = pd.to_datetime(end_date).date()
+    print(f'start_date: {start_date}, end_date: {end_date}')
     trading_dates = self.stocks[0].historical_prices['Date']
-    if start_date and end_date not in trading_dates:
-      msg = f'{start_date} and {end_date} are not trading dates.' 
-    if start_date or end_date not in trading_dates:
-      msg = f'{start_date} is not a trading date.' if start_date not in trading_dates \
-            else f'{end_date} is not a trading date.'
-      return msg
-    # trading_dates = pd.to_datetime(self.stocks[0].historical_prices['Date'])
-    # adjusted_start, adjusted_end = self.adjust_dates(start_date, end_date, trading_dates)
-    ko_dates = []
     
-    for date in trading_dates:
-      if date < pd.to_datetime(start_date) or date > pd.to_datetime(end_date):
-        continue
-      
-      try:
-        future_date = self.add_trading_days(date, trading_dates)
-      except KeyError as e:
-        print(f"Date not found in trading dates: {e}")
-        continue 
-      
-      date_mask = (trading_dates >= date) & (trading_dates <= future_date)
-      valid_dates = trading_dates[date_mask]
+    msg = ""
+    # Check if the start and end dates are in the data
+    if not trading_dates.isin([start_date]).any():
+      msg += f'{start_date} is not a trading date. '
+    if not trading_dates.isin([end_date]).any():
+      msg += f'{end_date} is not a trading date. '
 
-      all_stocks_above_ko = True
-      # Check each trading day from start date to future date
-      for single_date in valid_dates:
-        for stock in self.stocks:
-          # Fetch the daily returns for this single_date
-          stock_daily_data = stock.historical_prices.loc[
-            pd.to_datetime(stock.historical_prices['date']) == single_date]
+    if msg:
+      return msg
+    else:
+      pass 
+    
+    start_idx = trading_dates[trading_dates == start_date].index[0]
+    # Adjust the start date to avoid the guaranteed period
+    adjusted_start_date = trading_dates.iloc[start_idx + self.guranteed_days]
+    current_date = adjusted_start_date
+    ko_dates = []
 
-          # Check if the returns are above the ko threshold
-          if not (stock_daily_data['adjusted_daily_returns'] > self.ko).any():
-            all_stocks_above_ko = False
-            break
-        
-        if not all_stocks_above_ko:
-            break
-        
-      # If all stocks are above ko on this particular day, add the start date to ko_dates
-      if all_stocks_above_ko:
-        ko_dates.add(date.strftime('%Y-%m-%d'))
+    while current_date <= end_date:
+      # print(current_date)
+      current_date_idx = trading_dates[trading_dates == current_date].index[0]
+
+      date_after_tenor = trading_dates.iloc[current_date_idx + self.tenor]
+      all_stocks_ko = True
+
+      for stock in self.stocks:
+        stock_prices = stock.calculate_aggre_returns(current_date, date_after_tenor)
+        if stock_prices.max() < self.ko:
+          all_stocks_ko = False
+          break
+      
+      if all_stocks_ko:
+        date_str = current_date.strftime('%Y-%m-%d')
+        ko_dates.append(date_str)
+
+      current_date = trading_dates.iloc[current_date_idx + 1]
 
     return ko_dates
 
   def graph_backtest_KO(self, start_date, end_date, ko_dates):
     plt.figure(figsize=(10, 8))
 
-    # Convert string dates to datetime objects for plotting
+    # Convert string dates to datetime objects directly for plotting
     start_dt = pd.to_datetime(start_date)
     end_dt = pd.to_datetime(end_date)
 
-    # Plot each stock's historical returns
+    # Ensure date formatting for plotting; plot each stock's historical returns
     for stock in self.stocks:
-      dates = pd.to_datetime(stock.historical_prices['date'])  # Ensure dates are in datetime format
-      returns = stock.historical_prices['adjusted_daily_returns']
-      plt.plot(dates, returns, label=stock.ticker)
-    
+      # Ensure the Date column is in datetime format for plotting
+      if 'Date' in stock.historical_prices:
+        stock.historical_prices['Date'] = pd.to_datetime(stock.historical_prices['Date'])
+        plt.plot(stock.historical_prices['Date'], stock.historical_prices['aggregated_historical_returns'], label=stock.ticker)
+      else:
+        # Assuming date is the index
+        plt.plot(stock.historical_prices.index, stock.historical_prices['aggregated_historical_returns'], label=stock.ticker)
+
     # Highlight the KO periods
     for ko_date in ko_dates:
       ko_start = pd.to_datetime(ko_date)
@@ -156,76 +156,3 @@ class FCN(Stock):
 
   def backtest_exercise(self, start_date, end_date):
     pass
-
-  def add_trading_days(self, start_date, trading_dates):
-    """
-    Adjust the start date to the nearest available trading day if it's not a trading day,
-    then find the date that is 'tenor' trading days from the adjusted start date.
-
-    Parameters:
-    start_date (str or pd.Timestamp): Initial date.
-    tenor (int): Number of trading days to move forward.
-    trading_dates (pd.Series or array-like): Series or array of all trading dates.
-
-    Returns:
-    pd.Timestamp: The date that is 'tenor' trading days from the adjusted start date.
-    """
-    # Ensure trading_dates is a DatetimeIndex for proper functionality
-    if not isinstance(trading_dates, pd.DatetimeIndex):
-      trading_dates = pd.DatetimeIndex(trading_dates)
-    
-    start_date = pd.to_datetime(start_date)
-
-    # Ensure start_date is a trading day or adjust to the next trading day
-    if start_date not in trading_dates:
-      # Find the nearest future trading day if start_date is not found
-      future_dates = trading_dates[trading_dates >= start_date]
-      if not future_dates.empty:
-        start_date = future_dates[0]
-      else:
-        raise ValueError("No valid trading days available after the start date.")
-
-    # Find the index of the start date
-    start_idx = trading_dates.get_loc(start_date)
-
-    # Calculate the index for the date that is 'tenor' days ahead, ensuring bounds are respected
-    future_idx = min(start_idx + self.tenor, len(trading_dates) - 1)
-
-    return self.stocks[0].historical_prices['date'][future_idx]
-  
-  def adjust_dates(self, start_date, end_date, trading_dates):
-    """
-    Adjust the start and end dates to the nearest trading days. If the start_date is not a trading day,
-    adjust to the next available trading day. If the end_date is not a trading day, adjust to the 
-    previous available trading day.
-
-    Parameters:
-    start_date (str or pd.Timestamp): The proposed initial date.
-    end_date (str or pd.Timestamp): The proposed ending date.
-    trading_dates (pd.Series or list): Series or list of all trading dates.
-
-    Returns:
-    tuple: Adjusted (start_date, end_in_date) as pd.Timestamps.
-    """
-    # Convert all dates to pandas datetime for consistency
-    trading_dates = pd.to_datetime(trading_dates)
-    start_date = pd.to_datetime(start_date) 
-    end_date = pd.to_datetime(end_date)
-
-    # Adjust start_date to the next available trading day if necessary
-    if start_date not in trading_dates:
-      future_dates = trading_dates[trading_dates >= start_date]
-      if not future_dates.empty:
-        start_date = future_dates[0]
-      else:
-        raise ValueError("No future trading days available after the proposed start date.")
-
-    # Adjust end_date to the previous available trading day if necessary
-    if end_date not in trading_dates:
-      past_dates = trading_dates[trading_dates <= end_date]
-      if not past_dates.empty:
-        end_date = past_dates[-1]
-      else:
-        raise ValueError("No past trading days available before the proposed end date.")
-
-    return start_date, end_date

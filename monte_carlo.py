@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from math import exp
 from stock import *
 
+
+# simlulate over the past 758 trading dates 
 class MCStockSimulator(Stock):
     """
     The MCStockSimulator class is designed to represent a Monte Carlo simulation
@@ -31,8 +33,7 @@ class MCStockSimulator(Stock):
         
         self.stock_price = 100
         self.maturity_time = t
-        self.rate_of_return = stock.avg_daily_return
-        self.sigma = stock.avg_daily_return_sigma
+        self.rate_of_return, self.sigma = self.calculate_mu_sigma()
         self.periods_per_year = p
         self.ticker = stock.ticker
         # Store each of the parameters as a data member
@@ -44,6 +45,24 @@ class MCStockSimulator(Stock):
                 f'(days), rate_of_return={self.rate_of_return:.2f}, sigma={self.sigma:.2f} '
                 f'p={self.periods_per_year:.0f}, r={self.repetitions:.0f})')
         return info
+    
+    def calculate_mu_sigma(self):
+        """
+        Calculate the daily average return and the standard deviation from an array of closed stock prices.
+
+        Returns:
+        average_daily_return: float
+            The daily average return as a percentage.
+        avg_daily_return_sigma: float 
+            The standard deviation of the daily returns.
+        """
+        # Calculate daily returns
+        # Using the formula: (P_t - P_t-1) / P_t-1, where P_t is the price at time t
+        daily_returns = (self.stock.historical_prices_USD['Close'][1:] - self.stock.historical_prices_USD['Close'][:-1]) / self.historical_prices_USD['Close'][:-1]
+        # Calculate the average of these daily returns
+        average_return = np.mean(daily_returns)
+
+        return average_return, daily_returns.std()
     
     def generate_simulated_stock_returns(self):
         """
