@@ -135,11 +135,9 @@ class MCStockSimulator:
             # Create the x axis. The length should be the periods per year times
             # the time to maturity plus one for the current stock price
             
-            # fig = plt.figure()
             plt.figure(figsize = (10,8))
-
-            # Create the graph and label the axes
             
+            # Create the graph and label the axes
             trials_count = len(simulated_stock_values)
             for i in range(trials_count):
                 prices = simulated_stock_values[i]

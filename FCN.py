@@ -259,5 +259,14 @@ class FCN:
   def backtest_KI(self, start_date, end_date):
     pass
 
+  def graph_backtest_KI(start_date, end_date, ki_dates):
+    pass
+
+  def simulate_KI(list_of_simulations, num_trials=1000, start_days_from_today=0):
+    pass
+
   def backtest_exercise(self, start_date, end_date):
+    pass
+
+  def simulate_exercise(list_of_simulations, num_trials=1000, start_days_from_today=0):
     pass
