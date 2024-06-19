@@ -6,18 +6,16 @@ import matplotlib.pyplot as plt
 class Stock:
     """
     The Stock class is designed to contain the information of a Stock given the ticker
-    and the given time frame using Polygon.api
+    the data of the stock downloaded from yfinance API into csv files
     """
 
     def __init__(self, t):
         """
-        Parameters
-        ----------
+        Parameters:
         t : string
             The ticker of the stock, e.g. 'NVDA'
 
         Initialized Variables (eager loading)
-        ----------
         historical_prices: pandas df
             Contains the dates, historical closing prices, and historical aggregated returns of the stock
         """
@@ -28,7 +26,7 @@ class Stock:
         self.historical_aggre_return()
         
     def __repr__(self):
-        """Returns a formatted string containing the data members of the class"""
+        """Returns a formatted string containing the ticker and closing prices of the stock"""
 
         info = (f'Stock (t=${self.ticker},' 
                 f'historical_prices={self.historical_prices['Close']})')
@@ -38,6 +36,15 @@ class Stock:
     def calculate_aggre_returns(self, start_date, end_date):
         """
         Calculate the aggregated returns in a given time frame.
+
+        Parameters:
+        start_date: string 
+                    The start date in YYYY-MM-DD format
+        end_date: string 
+                    The end date in YYYY-MM-DD format
+                    
+        Returns:
+        Percent of aggregated daily returns in a list given the timeframe
         """
         # Calculate aggregated daily returns
         # Using the formula: (P_t - P_0) / P_0, where P_t is the price at time t
@@ -57,7 +64,7 @@ class Stock:
         return filtered_returns
 
     def plot_historical_prices(self):
-        print(self.historical_prices)
+        """Plot the graph of the stock according to the historical prices."""
         plt.figure(figsize = (10,8))
         plt.plot(self.historical_prices['aggregated_historical_returns'])
         plt.xlabel('Date')
@@ -67,7 +74,8 @@ class Stock:
     
     def fetch_historical_prices(self):
         """
-        Fetches the stock data for historical prices using the Polygon.io API
+        Fetches the stock data for dates and historical prices from the csv file 
+        in stock_data folder
 
         Returns:
         historical_prices: np array 
@@ -75,20 +83,15 @@ class Stock:
         """
 
         data = pd.read_csv(f'stock_data/{self.ticker}.csv')
-        # print(data)
         df = data[['Date' , 'Close']].copy()
-        # print(df)
         df['Close'] = np.array(df['Close'])
         df['Date'] = pd.to_datetime(df['Date'], utc=True).dt.date
         self.historical_prices = df
     
     def historical_aggre_return(self):
         """
-        Get the aggregated daily average returns from an array of closed stock prices.
-
-        Returns:
-        historical_prices: np array
-            A list of aggregated daily average returns with 100 as baseline starting point
+        Get the historical aggregated daily returns of the stock, attach to the 
+        historical_prices df
         """
         start_date = self.historical_prices['Date'].iloc[0]
         end_date = self.historical_prices['Date'].iloc[-1]

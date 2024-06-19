@@ -14,29 +14,36 @@ class MCStockSimulator:
     and the number of periods per year.
     """
     
-    def __init__(self, stock, t=252, p=2):
+    def __init__(self, stock, t=252, p=2, train=758):
         """
-
-        Parameters
-        ----------
+        Parameters: 
         stock : Stock object
-            Contains the stock prices, the average daily rate of return of the stock
-            in decimal form, the average daily rate of return of the stock in decimal 
-            form, and the standard deviation of the returns of the stock
-        t : float
+            contains the ticker and historical prices data
+        t : float 
             The time to maturity of the option in days, alternatively the time
             horizon we wish to model
         p : float
             The number of periods per year
+        train: float 
+            The amount of trading days we wish to trade on 
+        Other Variables:
+        rate_of_return: float 
+            The average daily return of the stock
+        sigma: float 
+            The standard deviation of the average daily return of the stock
+        ticker: string
+            Ticker of the stock
+        stock_price: float
+            The default baseline of the stock 
         """
-        
+
         self.stock = stock
-        self.stock_price = 100
         self.maturity_time = t
+        self.train = train
         self.rate_of_return, self.sigma = self.calculate_mu_sigma()
         self.periods_per_year = p
         self.ticker = stock.ticker
-        # Store each of the parameters as a data member
+        self.stock_price = 100
     
     def __repr__(self):
         """Returns a formatted string containing the data members of the class"""
@@ -57,11 +64,11 @@ class MCStockSimulator:
             The standard deviation of the daily returns.
         """
 
-        past_758_close = self.stock.historical_prices['Close'].iloc[-758:]
-        past_758_close = past_758_close.reset_index(drop=True).to_numpy()
+        past_close = self.stock.historical_prices['Close'].iloc[-self.train:]
+        past_close = past_close.reset_index(drop=True).to_numpy()
         # Calculate daily returns
         # Using the formula: (P_t - P_t-1) / P_t-1, where P_t is the price at time t
-        daily_returns = (past_758_close[1:] - past_758_close[:-1]) / past_758_close[:-1]
+        daily_returns = (past_close[1:] - past_close[:-1]) / past_close[:-1]
         # Calculate the average of these daily returns
         average_return = np.mean(daily_returns)
 
@@ -71,6 +78,9 @@ class MCStockSimulator:
         """
         Generates and returns an numpy.array of simulated stock returns for the
         time period and number of periods per year
+        Returns: 
+            simulation: list[float]
+                a list of simulated stock values 
         """
         
         length = int(self.maturity_time * self.periods_per_year)
@@ -92,6 +102,12 @@ class MCStockSimulator:
         """
         Generates and returns an numpy.array of simulated stock values for the
         time period and number of periods per year
+        Parameters:
+            num_trials: int 
+                The number of simulations ran 
+        Returns:
+            list_of_prices: list[np.array]
+                A list of np.arrays that contains the simulated stock prices
         """
         
         list_of_prices = []  # Use a list to store arrays of prices for each trial
@@ -112,9 +128,7 @@ class MCStockSimulator:
     
     def plot_simulated_stock_values(self, simulated_stock_values):
             """
-            Plots the simulated stock values on a graph. It is possible to plot
-            multiple simulations on the same graph with the optional parameter
-            num_trials. The default value is 1. Returns nothing.
+            Plots the simulated stock values on a graph.
             """
             x_axis = np.linspace(0, self.maturity_time, 
                                  num = self.periods_per_year * self.maturity_time + 1)

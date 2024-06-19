@@ -4,7 +4,8 @@ from stock import *
 
 class FCN:
   """
-  FNC description
+  The FNC (Fixed Coupon Notes) is designed to contain the functions used for analyzing 
+  FNC. Including backtesting with past data and gain information based on simulated data.
   """
 
   def __init__(self, stocks, ko=120, ki=60, s=80, g=27, t=252):
@@ -12,7 +13,6 @@ class FCN:
     Parameters
     ----------
     stocks: list of Stock objects
-            list of simulations 
     ko: double 
         KO
     ki: double 
@@ -29,10 +29,12 @@ class FCN:
     self.ko = ko
     self.ki = ki
     self.strike = s
-    self.tenor = t
     self.guranteed_days = g
+    self.tenor = t
+    
 
   def __repr__(self):
+    """Returns a formatted string containing the data members of the class"""
     stock_tickers = []
     for stock in self.stocks:
       stock_tickers.append(stock.ticker)
@@ -41,15 +43,22 @@ class FCN:
     return info
   
   def set_tenor(self, t):
+    """Sets the tenor to a different length"""
     self.tenor = t
 
-  def set_KI(self, ki):
-    self.ki = ki
-
   def set_KO(self, ko):
+    """Sets the KO to a different value"""
     self.ko = ko
+
+  def set_KI(self, ki):
+    """Sets the KI to a different value"""
+    self.ki = ki
   
   def plot_stocks(self):
+    """
+    Generates the plot of the aggregated historical returns of the basket of stocks
+    given, displays the changes of returns in percentages
+    """
     plt.figure(figsize=(10, 8))
     for stock in self.stocks:
       plt.plot(stock.historical_prices['aggregated_historical_returns'], label=stock.ticker)
@@ -60,13 +69,16 @@ class FCN:
     plt.legend()
     plt.show()
 
-  def backtest_KO(self, start_date, end_date):
-    # Converting the string to datetime
-    start_date = pd.to_datetime(start_date).date()
-    end_date = pd.to_datetime(end_date).date()
-    print(f'start_date: {start_date}, end_date: {end_date}')
+  def check_dates(self, start_date, end_date):
+    """
+    Checks if the dates are contained within the dataset
+    Parameters:
+      start_date: string 
+        start_date in YYYY-MM-DD format
+      end_date: string 
+        end_date in YYYY-MM-DD format
+    """
     trading_dates = self.stocks[0].historical_prices['Date']
-    
     msg = ""
     # Check if the start and end dates are in the data
     if not trading_dates.isin([start_date]).any():
@@ -77,7 +89,31 @@ class FCN:
     if msg:
       return msg
     else:
+      return False
+
+  def backtest_KO(self, start_date, end_date):
+    """
+    Backtest using historical data to see which dates will KO, returns
+    in a list of datetime Objects
+    Parameters:
+      start_date: string 
+        start_date in YYYY-MM-DD format
+      end_date: string 
+        end_date in YYYY-MM-DD format
+    Returns:
+      ko_dates: list[datetime Objects]
+        list of datetime Objects in YYYY-MM-DD
+    """
+    # Converting the string to datetime
+    start_date = pd.to_datetime(start_date).date()
+    end_date = pd.to_datetime(end_date).date()
+    trading_dates = self.stocks[0].historical_prices['Date']
+    check_dates = self.check_dates(start_date, end_date)
+    
+    if not check_dates:
       pass 
+    else:
+      print(check_dates)
     
     start_idx = trading_dates[trading_dates == start_date].index[0]
     # Adjust the start date to avoid the guaranteed period
@@ -85,28 +121,42 @@ class FCN:
     current_date = adjusted_start_date
     ko_dates = []
 
+    # iterate through tenor amount of trading days to check for KO 
     while current_date <= end_date:
-      # print(current_date)
       current_date_idx = trading_dates[trading_dates == current_date].index[0]
 
       date_after_tenor = trading_dates.iloc[current_date_idx + self.tenor]
       all_stocks_ko = True
 
+      # check if all 3 stock beat KO within the same time period 
       for stock in self.stocks:
         stock_prices = stock.calculate_aggre_returns(current_date, date_after_tenor)
         if stock_prices.max() < self.ko:
           all_stocks_ko = False
           break
       
+      # append if all stocks beat KO
       if all_stocks_ko:
         date_str = current_date.strftime('%Y-%m-%d')
         ko_dates.append(date_str)
 
+      # continue iterating
       current_date = trading_dates.iloc[current_date_idx + 1]
 
     return ko_dates
 
   def graph_backtest_KO(self, start_date, end_date, ko_dates):
+    """
+    Graphs the backtest_KO results given the start and end dates and the list 
+    of dates that will KO
+    Parameters:
+      start_date: string 
+        start_date in YYYY-MM-DD format
+      end_date: string 
+        end_date in YYYY-MM-DD format
+      ko_dates: list[datetime Objects]
+        list of datetime Objects in YYYY-MM-DD
+    """
     plt.figure(figsize=(10, 8))
 
     # Convert string dates to datetime objects directly for plotting
@@ -150,6 +200,22 @@ class FCN:
     plt.show()
 
   def simulate_KO(self, list_of_simulations, num_trials=1000, start_days_from_today=0):
+    """
+    Test if stock(s) will KO given the simulations of the stocks and the number of
+    trials that would be conducted. Can also customize the testing period by giving 
+    the amount of days the test starts from current date. Graphs the result and returns
+    a list of percentages of KO based on the given parameters.
+    Parameters:
+      list_of_simulations: list[np.array]
+        list of simulated values of the stock(s)
+      num_trials: int
+        number of times the simulation will be conducted
+      start_days_from_today: int
+        numbers of days away from today to start the testing period
+    Returns:
+      list_of_ko_percentage: list[string]
+        a list of string that contains the KO percentages of the stock(s) simulated
+    """
     start_idx = start_days_from_today + self.guranteed_days
     end_idx = self.tenor
     list_of_ko_percentage = []
