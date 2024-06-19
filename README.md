@@ -3,7 +3,7 @@
 **Using past data to backtest and Monte-Carlo method to simulate the different scenarios of FCN.**
 ### Class Designs
  - Stock class:
-   - Fetches the historical prices given a ticker 
+   - Fetches the historical prices of a stock given a ticker 
    - Functions:
      - Stock('ticker')
      - calculate_aggre_returns(start_date, end_date)
@@ -18,7 +18,7 @@
       - generate_simulated_stock_values(num_trials=10)
       - plot_simulated_stock_values(simulated_stock_values)
  - FCN class:
-   - Backtest with past data and gain information based on simulated data for analyzing the different scenarios of FNC.
+   - Backtest with past data and gain information based on simulated data for analyzing the different scenarios of FNC
    - Functions:
       - FCN(stocks, ko=120, ki=60, strike=80, guaranteed_days=27, tenor=252)
       - plot_stocks()
