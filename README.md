@@ -26,9 +26,9 @@
     - backtest_KO(start_date, end_date)
     - graph_backtest_KO(start_date, end_date, ko_dates)
     - simulate_KO(list_of_simulations, num_trials=1000, start_days_from_today=0)
-    - backtest_KI(start_date, end_date) # in progress
-    - graph_backtest_KI(start_date, end_date, ki_dates) # in progress
-    - simulate_KI(list_of_simulations, num_trials=1000, start_days_from_today=0) # in progress
-    - backtest_exercise(self, start_date, end_date) # in progress
-    - graph_backtest_exercise(start_date, end_date, exercise_dates) # in progress
-    - simulate_exercise(list_of_simulations, num_trials=1000, start_days_from_today=0) # in progress
+    - backtest_KI(start_date, end_date) (in progress)
+    - graph_backtest_KI(start_date, end_date, ki_dates) (in progress)
+    - simulate_KI(list_of_simulations, num_trials=1000, start_days_from_today=0) (in progress)
+    - backtest_exercise(self, start_date, end_date) (in progress)
+    - graph_backtest_exercise(start_date, end_date, exercise_dates) (in progress)
+    - simulate_exercise(list_of_simulations, num_trials=1000, start_days_from_today=0) (in progress)
