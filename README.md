@@ -3,7 +3,7 @@
 **Using past data to backtest and Monte-Carlo method to simulate the different scenarios of FCN.**
 ### Class Designs
  - Stock class:
-   - Fetches the historical aggregated return prices given a ticker 
+   - Fetches the historical prices given a ticker 
    - Functions:
      - Stock('ticker')
      - calculate_aggre_returns(start_date, end_date)
@@ -11,7 +11,7 @@
      - fetch_historical_prices()
      - historical_aggre_return()
  - MCStockSimulator class:
-   - Capabilities to generate simulated stock returns and values given a stock and plot the simulations.
+   - Capabilities to generate simulated stock returns and values given a stock and plot the simulations
    - Functions:
      - MCStockSimulator(Stock, maturity_time=252, periods_per_year=2, train=758)
       - generate_simulated_stock_returns()
@@ -32,3 +32,7 @@
     - backtest_exercise(self, start_date, end_date) (in progress)
     - graph_backtest_exercise(start_date, end_date, exercise_dates) (in progress)
     - simulate_exercise(list_of_simulations, num_trials=1000, start_days_from_today=0) (in progress)
+  - Utilities class:
+    - Utility functions
+    - Functions:
+      - download_data(start_date, end_date, ticker)
