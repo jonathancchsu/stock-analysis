@@ -120,12 +120,7 @@ class FCN:
       print(check_dates)
     
     start_idx = trading_dates[trading_dates == start_date].index[0]
-    # Adjust the start date to avoid the guaranteed period
-    try:
-      adjusted_start_date = trading_dates.iloc[start_idx + self.guaranteed_days]
-    except IndexError as e:
-      print('The end_date plus tenor is out of bound.')
-    current_date = adjusted_start_date
+    current_date = trading_dates.iloc[start_idx]
     ko_dates = []
     ki_dates = []
     exercise_dates = []
@@ -133,21 +128,23 @@ class FCN:
     # iterate through tenor amount of trading days to check for KO 
     while current_date <= end_date:
       current_date_idx = trading_dates[trading_dates == current_date].index[0]
-      date_after_guaranteed = trading_dates.iloc[current_date_idx + self.guaranteed_days]
+      # date_after_guaranteed = trading_dates.iloc[current_date_idx + self.guaranteed_days]
       date_after_tenor = trading_dates.iloc[current_date_idx + self.tenor]
       ko_check = True
-      ki_check = True
+      ki_check = False
       exercise_check = False
 
       # check if all 3 stock beat KO within the same time period 
       for stock in self.stocks:
-        stock_prices = stock.calculate_aggregate_returns(date_after_guaranteed, date_after_tenor)
+        stock_prices = stock.calculate_aggregate_returns(current_date, date_after_tenor)
         
+        stock_prices = stock_prices[self.guaranteed_days:] 
+
         if stock_prices.max() < self.ko:
           ko_check = False
 
-        if stock_prices.min() > self.ki:
-          ki_check = False
+        if stock_prices.min() < self.ki:
+          ki_check = True
       
       # append if all stocks beat KO
       if ko_check:
@@ -167,9 +164,91 @@ class FCN:
       current_date = trading_dates.iloc[current_date_idx + 1]
 
     return {
-      'KO Dates': ko_dates,
-      'KI Dates': ki_dates,
-      'Exercise Dates': exercise_dates
+      'KO': ko_dates,
+      'KI': ki_dates,
+      'Exercise': exercise_dates
+    }
+  
+  def backtest_fcn_single_date(self, date):
+    date = pd.to_datetime(date).date()
+    trading_dates = self.stocks[0].historical_prices['Date']
+    check_dates = self.check_dates(date, date)
+
+    if not check_dates:
+      pass 
+    else:
+      print(check_dates)
+
+    date_idx = trading_dates[trading_dates == date].index[0]
+    date_after_tenor = trading_dates.iloc[date_idx + self.tenor]
+    ko_check = True
+    ki_check = False
+    exercise_check = False
+
+    for stock in self.stocks:
+      stock_prices = stock.calculate_aggregate_returns(date, date_after_tenor)
+      
+      stock_prices = stock_prices[self.guaranteed_days:] 
+
+      if stock_prices.max() < self.ko:
+        ko_check = False
+
+      if stock_prices.min() < self.ki:
+        ki_check = True
+    
+    if ki_check:
+      for stock in self.stocks:
+        if stock_prices[-1] < self.strike:
+          exercise_check = True
+          break
+    
+    end_date = trading_dates.iloc[date_idx + 504] if date_idx + 504 < len(trading_dates) else trading_dates.iloc[-1]
+
+    plt.figure(figsize=(10, 8))
+
+    # Convert string dates to datetime objects directly for plotting
+    start_dt = pd.to_datetime(date)
+    end_dt = pd.to_datetime(date_after_tenor)
+
+    # Ensure date formatting for plotting; plot each stock's historical returns
+    for stock in self.stocks:
+      stock_prices = stock.calculate_aggregate_returns(date, end_date)
+      if 'Date' in stock.historical_prices:
+        stock.historical_prices['Date'] = pd.to_datetime(stock.historical_prices['Date'])
+        plt.plot(stock.historical_prices['Date'][date_idx:], stock_prices, label=stock.ticker)
+      else:
+        plt.plot(stock.historical_prices['Date'][date_idx:], stock_prices, label=stock.ticker)
+
+    plt.axhline(y=self.ko, color='red', linestyle='--', linewidth=2, label='KO Level')
+    plt.axhline(y=self.ki, color='green', linestyle='--', linewidth=2, label='KI Level')
+    plt.axhline(y=self.strike, color='black', linestyle='--', linewidth=2, label='Strike Level')
+
+    # Add vertical lines for start and end dates
+    plt.axvline(x=start_dt, color='blue', linestyle='--', linewidth=2, label='Date')
+    plt.axvline(x=end_dt, color='blue', linestyle='--', linewidth=2, label='Date After Tenor')
+
+    # Formatting the plot
+    plt.xlabel('Date')
+    plt.ylabel('Percent Aggregate Return')
+    plt.title(f'Historical Aggregate Return with FCN Conditions on {date}')
+    plt.legend()
+
+    # Improve date formatting on x-axis
+    plt.gca().xaxis.set_major_locator(mdates.YearLocator())
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gcf().autofmt_xdate()  # Rotation
+
+    plt.show()
+
+    print({
+      "KO": f"{'yes' if ko_check else 'no'}",
+      "KI": f"{'yes' if ki_check else 'no'}",
+      "Exercise": f"{'yes' if exercise_check else 'no'}"
+    })
+    return {
+      "KO": f"{'yes' if ko_check else 'no'}",
+      "KI": f"{'yes' if ki_check else 'no'}",
+      "Exercise": f"{'yes' if exercise_check else 'no'}"
     }
 
   def graph_backtest_fcn(self, start_date, end_date):

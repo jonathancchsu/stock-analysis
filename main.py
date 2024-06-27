@@ -38,12 +38,13 @@ stocks = [NVDA, SMCI, TSM]
 #         guaranteed_days (default=27), tenor (default=252), risk-free rate(default-0.048)
 fcn = FCN(stocks, 110, 70, 90, 27, 252, 0.048)
 
-fcn_dates = fcn.backtest_fcn(start_date, end_date)
-fcn.print_dates(fcn_dates)
-# fcn.graph_backtest_fcn(start_date, end_date)
+# fcn_dates = fcn.backtest_fcn(start_date, end_date)
+# fcn.print_dates(fcn_dates)
+# fcn.graph_backtest_fcn('2021-11-05', '2021-11-05')
+fcn.backtest_fcn_single_date('2022-11-04')
 
 # num_trials, start_days_from_today, time_steps
-# fcn.simulate_fcn(1000, 0, 500)
+# fcn.simulate_fcn(50000, 0, 500)
 
 # generate_correlated_random_walks params: list of stock simulations, length of each 
 # path (in days), risk free rate
