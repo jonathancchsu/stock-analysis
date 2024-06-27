@@ -11,14 +11,14 @@ from utilities import *
 # Utilities.download_data(data_start_date, data_end_date, 'SMCI')
 # Utilities.download_data(data_start_date, data_end_date, 'TSM')
 
-start_date = '2019-01-04'
-end_date = '2021-01-05'
+start_date = '2021-11-05'
+end_date = '2022-11-04'
 # end_date = '2023-06-05'
 
-# Stock params: ticker
-NVDA = Stock('NVDA', 758)
-SMCI = Stock('SMCI', 758)
-TSM = Stock('TSM', 758)
+# Stock params: ticker, days to calculate sigma mu
+NVDA = Stock('NVDA', 250)
+SMCI = Stock('SMCI', 250)
+TSM = Stock('TSM', 250)
 
 # MCS params: Stock, maturity (default=252), periods (default=2) 
 # NVDAsim = MCStockSimulator(NVDA, 252, 2)
@@ -35,15 +35,15 @@ stocks = [NVDA, SMCI, TSM]
 # stock_sims = [NVDAsim, SMCIsim, TSMsim]
 
 # fcn params: list of Stocks, ko (default=120), ki (default=60), strike (default=80),
-#         guaranteed_days (default=27), tenor (default=252)  
-fcn = FCN(stocks, 120, 60, 80, 27, 252, 0.048)
+#         guaranteed_days (default=27), tenor (default=252), risk-free rate(default-0.048)
+fcn = FCN(stocks, 110, 70, 90, 27, 252, 0.048)
 
 fcn_dates = fcn.backtest_fcn(start_date, end_date)
 fcn.print_dates(fcn_dates)
 # fcn.graph_backtest_fcn(start_date, end_date)
 
 # num_trials, start_days_from_today, time_steps
-fcn.simulate_fcn(1000, 0, 500)
+# fcn.simulate_fcn(1000, 0, 500)
 
 # generate_correlated_random_walks params: list of stock simulations, length of each 
 # path (in days), risk free rate
