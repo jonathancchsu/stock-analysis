@@ -9,7 +9,7 @@ class Stock:
     the data of the stock downloaded from yfinance API into csv files
     """
 
-    def __init__(self, t):
+    def __init__(self, t, train=758):
         """
         Parameters:
         t : string
@@ -22,8 +22,10 @@ class Stock:
 
         self.ticker = t
         self.historical_prices = pd.DataFrame()
+        self.train = train
         self.fetch_historical_prices()
-        self.historical_aggre_return()
+        self.historical_aggregate_return()
+        self.rate_of_return, self.sigma = self.calculate_mu_sigma()
         
     def __repr__(self):
         """Returns a formatted string containing the ticker and closing prices of the stock"""
@@ -33,7 +35,7 @@ class Stock:
         return info
     
 
-    def calculate_aggre_returns(self, start_date, end_date):
+    def calculate_aggregate_returns(self, start_date, end_date):
         """
         Calculate the aggregated returns in a given time frame.
 
@@ -88,17 +90,38 @@ class Stock:
         df['Date'] = pd.to_datetime(df['Date'], utc=True).dt.date
         self.historical_prices = df
     
-    def historical_aggre_return(self):
+    def historical_aggregate_return(self):
         """
         Get the historical aggregated daily returns of the stock, attach to the 
         historical_prices df
         """
         start_date = self.historical_prices['Date'].iloc[0]
         end_date = self.historical_prices['Date'].iloc[-1]
-        adjusted_daily_returns = self.calculate_aggre_returns(start_date, end_date)
+        adjusted_daily_returns = self.calculate_aggregate_returns(start_date, end_date)
 
         df_aggregated_daily_returns = pd.DataFrame({'aggregated_historical_returns': adjusted_daily_returns})
         df = pd.concat([self.historical_prices, df_aggregated_daily_returns], axis=1)
 
 
         self.historical_prices = df
+
+    def calculate_mu_sigma(self):
+        """
+        Calculate the daily average return and the standard deviation from an array of closed stock prices.
+
+        Returns:
+        average_daily_return: float
+            The daily average return as a percentage.
+        avg_daily_return_sigma: float 
+            The standard deviation of the daily returns.
+        """
+
+        past_close = self.historical_prices['Close'].iloc[-self.train:]
+        past_close = past_close.reset_index(drop=True).to_numpy()
+        # Calculate daily returns
+        # Using the formula: (P_t - P_t-1) / P_t-1, where P_t is the price at time t
+        daily_returns = (past_close[1:] - past_close[:-1]) / past_close[:-1]
+        # Calculate the average of these daily returns
+        average_return = np.mean(daily_returns)
+
+        return average_return, daily_returns.std()

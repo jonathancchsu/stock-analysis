@@ -45,3 +45,15 @@ FCN Class (stocks np.array of Stock, KO, Strike, KI, Tenor)
 			Plot a graph of start dates that Exercise
 	
 MonteCarlo Simulation Class
+
+todo: generate customizable amount of graphs 
+			combine ko ki exercise functions 
+			single date backtest ()
+
+			backtest_conditions(start_date, end_date) 
+			# test all 3 conditions (ko, ki, exercise)
+			=> returns list of date (combine consec dates), 1 graph for each condition
+			simulations = generate_correlated_random
+			simulate_conditions(simulations)
+			# test all 3 conditions (ko, ki, exercise)
+			=> returns percentage, customizable amount of graphs
