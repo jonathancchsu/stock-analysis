@@ -5,7 +5,7 @@
  - **Stock class**:
    - Fetches the historical prices of a stock given a ticker and calculate the mu and sigma based on the given time.
    - Functions:
-     - **Stock('ticker', train=758)**
+     - **Stock(ticker, train=758)**
      - calculate_aggregate_returns(start_date, end_date)
      - plot_historical_prices()
      - fetch_historical_prices()
