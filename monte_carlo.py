@@ -19,12 +19,12 @@ class MCStockSimulator:
         Parameters: 
         stock : Stock object
             contains the ticker and historical prices data
-        t : float 
+        t : int
             The time to maturity of the option in days, alternatively the time
             horizon we wish to model
-        p : float
+        p : int
             The number of periods per year
-        train: float 
+        train: int
             The amount of trading days we wish to trade on 
         Other Variables:
         rate_of_return: float 
@@ -79,8 +79,8 @@ class MCStockSimulator:
         Generates and returns an numpy.array of simulated stock returns for the
         time period and number of periods per year
         Returns: 
-            simulation: list[float]
-                a list of simulated stock values 
+        simulation: list[float]
+            a list of simulated stock values 
         """
         
         length = int(self.maturity_time * self.periods_per_year)
@@ -103,11 +103,11 @@ class MCStockSimulator:
         Generates and returns an numpy.array of simulated stock values for the
         time period and number of periods per year
         Parameters:
-            num_trials: int 
-                The number of simulations ran 
+        num_trials: int 
+            The number of simulations ran 
         Returns:
-            list_of_prices: list[np.array]
-                A list of np.arrays that contains the simulated stock prices
+        list_of_prices: list[np.array]
+            A list of np.arrays that contains the simulated stock prices
         """
         
         list_of_prices = []  # Use a list to store arrays of prices for each trial

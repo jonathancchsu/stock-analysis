@@ -13,12 +13,34 @@ from utilities import *
 
 start_date = '2021-11-05'
 end_date = '2022-11-04'
-# end_date = '2023-06-05'
+single_date = '2022-11-04'
 
 # Stock params: ticker, days to calculate sigma mu
 NVDA = Stock('NVDA', 250)
 SMCI = Stock('SMCI', 250)
 TSM = Stock('TSM', 250)
+
+stocks = [NVDA, SMCI, TSM]
+
+# fcn params: list of Stocks, ko (default=120), ki (default=60), strike (default=80),
+#         guaranteed_days (default=27), tenor (default=252), risk-free rate(default-0.048)
+fcn = FCN(stocks, 110, 70, 90, 27, 252, 0.048)
+
+# backtest_fcn params: start_date('YYYY-MM-DD'), end_date('YYYY-MM-DD')
+fcn.backtest_fcn(start_date, end_date)
+
+# backtest_fcn_single_date params: date('YYYY-MM-DD')
+fcn.backtest_fcn_single_date(single_date)
+
+# simulate_fcn params: num_trials, start_days_from_today, number of days generated
+# fcn.simulate_fcn(50000, 0, 500)
+
+
+######################Functions for Testing######################
+# generate_correlated_random_walks params: list of stock simulations, length of each 
+# path (in days), risk free rate
+# random_walks = fcn.generate_correlated_random_walks(500)
+# fcn.graph_random_walks(random_walks, 500)
 
 # MCS params: Stock, maturity (default=252), periods (default=2) 
 # NVDAsim = MCStockSimulator(NVDA, 252, 2)
@@ -30,23 +52,3 @@ TSM = Stock('TSM', 250)
 
 # plot_simulated_stock_values params: simulated stock values
 # NVDAsim.plot_simulated_stock_values(NVDAsim_vals)
-
-stocks = [NVDA, SMCI, TSM]
-# stock_sims = [NVDAsim, SMCIsim, TSMsim]
-
-# fcn params: list of Stocks, ko (default=120), ki (default=60), strike (default=80),
-#         guaranteed_days (default=27), tenor (default=252), risk-free rate(default-0.048)
-fcn = FCN(stocks, 110, 70, 90, 27, 252, 0.048)
-
-# fcn_dates = fcn.backtest_fcn(start_date, end_date)
-# fcn.print_dates(fcn_dates)
-# fcn.graph_backtest_fcn('2021-11-05', '2021-11-05')
-fcn.backtest_fcn_single_date('2022-11-04')
-
-# num_trials, start_days_from_today, time_steps
-# fcn.simulate_fcn(50000, 0, 500)
-
-# generate_correlated_random_walks params: list of stock simulations, length of each 
-# path (in days), risk free rate
-# random_walks = fcn.generate_correlated_random_walks(500)
-# fcn.graph_random_walks(random_walks, 500)

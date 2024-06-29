@@ -1,12 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+from pandas import Timestamp
 
 class Stock:
     """
     The Stock class is designed to contain the information of a Stock given the ticker
-    the data of the stock downloaded from yfinance API into csv files
+    the data of the stock downloaded from yfinance API into csv files and calculate the 
+    historical aggregate return, rate of return, and sigma of the stock given the data and
+    specified training days
     """
 
     def __init__(self, t, train=758):
@@ -17,7 +19,11 @@ class Stock:
 
         Initialized Variables (eager loading)
         historical_prices: pandas df
-            Contains the dates, historical closing prices, and historical aggregated returns of the stock
+            Contains the dates, historical closing prices, and historical aggregated 
+            returns of the stock
+        rate_of_return, sigma: float
+            The average daily return and the standard deviation of the average daily return
+            of the stocks based on the given amount of dates.
         """
 
         self.ticker = t
@@ -41,27 +47,33 @@ class Stock:
 
         Parameters:
         start_date: string 
-                    The start date in YYYY-MM-DD format
+            The start date in YYYY-MM-DD format.
         end_date: string 
-                    The end date in YYYY-MM-DD format
-                    
+            The end date in YYYY-MM-DD format.
+
         Returns:
-        Percent of aggregated daily returns in a list given the timeframe
+            Percent of aggregated daily returns in a list given the timeframe.
         """
-        # Calculate aggregated daily returns
-        # Using the formula: (P_t - P_0) / P_0, where P_t is the price at time t
-        start_date = pd.to_datetime(start_date).date()
-        end_date = pd.to_datetime(end_date).date()
-        df = self.historical_prices[['Date' , 'Close']]
-        filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
-        filtered_df = filtered_df.reset_index(drop=True)
-        filtered_returns = (filtered_df['Close'][1:] - filtered_df['Close'][0]) / filtered_df['Close'][0]
-        # Adding 0 at the start for baseline for day 1 of observation
-    
-        filtered_returns = np.insert(filtered_returns, 0, 0)
-        # Making the list into percentage changes
-        filtered_returns = (filtered_returns + 1) * 100
-        filtered_returns = np.array(filtered_returns)
+        # Convert dates to pandas.Timestamp directly
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        
+        # Make sure the Date column is in Timestamp format
+        self.historical_prices['Date'] = pd.to_datetime(self.historical_prices['Date'])
+
+        # Filter DataFrame safely using .loc and explicit copy
+        filtered_df = self.historical_prices.loc[(self.historical_prices['Date'] >= start_date) & (self.historical_prices['Date'] <= end_date)].copy()
+        filtered_df.reset_index(drop=True, inplace=True)
+
+        # Calculate the returns
+        if len(filtered_df) > 1:
+            filtered_returns = (filtered_df['Close'][1:] - filtered_df['Close'].iloc[0]) / filtered_df['Close'].iloc[0]
+        else:
+            filtered_returns = np.array([])  # handle case where filtered_df is too short
+
+        # Prepare returns for output
+        filtered_returns = np.insert(filtered_returns, 0, 0)  # add 0 at the start for baseline
+        filtered_returns = (filtered_returns + 1) * 100  # convert to percentage
 
         return filtered_returns
 

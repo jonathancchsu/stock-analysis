@@ -5,34 +5,38 @@
  - Stock class:
    - Fetches the historical prices of a stock given a ticker 
    - Functions:
-     - Stock('ticker')
-     - calculate_aggre_returns(start_date, end_date)
+     - **Stock('ticker', train=758)**
+     - calculate_aggregate_returns(start_date, end_date)
      - plot_historical_prices()
      - fetch_historical_prices()
-     - historical_aggre_return()
- - MCStockSimulator class:
-   - Capabilities to generate simulated stock returns and values given a stock and plot the simulations
-   - Functions:
-     - MCStockSimulator(Stock, maturity_time=252, periods_per_year=2, train=758)
-      - generate_simulated_stock_returns()
-      - generate_simulated_stock_values(num_trials=10)
-      - plot_simulated_stock_values(simulated_stock_values)
+     - historical_aggregate_return()
+     - calculate_mu_sigma()
+
  - FCN class:
    - Backtest with past data and gain information based on simulated data for analyzing the different scenarios of FNC
    - Functions:
-      - FCN(stocks, ko=120, ki=60, strike=80, guaranteed_days=27, tenor=252)
+      - **FCN(stocks, ko=120, ki=60, strike=80, guaranteed_days=27, tenor=252, risk_free_rate=0.048)**
+      - **backtest_fcn(start_date, end_date)**
+      - **backtest_fcn_single_date(date)**
+      - **simulate_fcn(num_trials=1000, start_days_from_today=0, time_steps=500)**
       - plot_stocks()
       - check_dates(start_date, end_date)
-      - backtest_KO(start_date, end_date)
-      - graph_backtest_KO(start_date, end_date, ko_dates)
-      - simulate_KO(list_of_simulations, num_trials=1000, start_days_from_today=0)
-      - backtest_KI(start_date, end_date) (in progress)
-      - graph_backtest_KI(start_date, end_date, ki_dates) (in progress)
-      - simulate_KI(list_of_simulations, num_trials=1000, start_days_from_today=0) (in progress)
-      - backtest_exercise(self, start_date, end_date) (in progress)
-      - graph_backtest_exercise(start_date, end_date, exercise_dates) (in progress)
-      - simulate_exercise(list_of_simulations, num_trials=1000, start_days_from_today=0) (in progress)
+      - graph_backtest_fcn(start_date, end_date)
+      - calculate_correlation(days)
+      - generate_correlated_random_walks(time_steps)
+      - graph_random_walks(stock_prices, time_steps)
+      - print_dates(dates_dict)
+
  - Utilities class:
    - Utility functions
    - Functions:
-     - download_data(start_date, end_date, ticker)
+     - **download_data(start_date, end_date, ticker)**
+
+ - MCStockSimulator class (deprecated):
+   - Capabilities to generate simulated single stock returns and values given a stock and plot the simulations
+   - Functions:
+     - **MCStockSimulator(Stock, maturity_time=252, periods_per_year=2, train=758)**
+     - **generate_simulated_stock_values(num_trials=10)**
+     - **plot_simulated_stock_values(simulated_stock_values)**
+     - calculate_mu_sigma()
+     - generate_simulated_stock_returns()
