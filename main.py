@@ -4,12 +4,12 @@ from FCN import *
 from utilities import *
 
 # download data, store in stock_data folder
-# data_start_date = '2016-01-02'
-# data_end_date = '2024-06-18'
+data_start_date = '2016-01-02'
+data_end_date = '2024-07-30'
 
-# Utilities.download_data(data_start_date, data_end_date, 'NVDA')
-# Utilities.download_data(data_start_date, data_end_date, 'SMCI')
-# Utilities.download_data(data_start_date, data_end_date, 'TSM')
+Utilities.download_data(data_start_date, data_end_date, 'NVDA')
+Utilities.download_data(data_start_date, data_end_date, 'SMCI')
+Utilities.download_data(data_start_date, data_end_date, 'TSM')
 
 start_date = '2021-11-05'
 end_date = '2022-11-04'
