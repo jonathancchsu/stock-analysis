@@ -420,7 +420,13 @@ class FCN:
     ki_percentage = 100 * np.mean(results['KI'])
     exercise_percentage = 100 * np.mean(results['Exercise'])
     
+    if correlated:
+      msg = 'Correlated Simulations: '
+    else:
+      msg = 'Uncorrelated Simulations: '
+
     print(
+      f'{msg}'
       f'KO Percentage: {ko_percentage:.2f}%, '
       f'KI Percentage: {ki_percentage:.2f}%, '
       f'Exercise Percentage: {exercise_percentage:.2f}%'
