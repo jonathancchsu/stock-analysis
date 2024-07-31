@@ -323,7 +323,7 @@ class FCN:
 
     plt.show()
   
-  def simulate_fcn(self, num_trials=1000, start_days_from_today=0, time_steps=500):
+  def simulate_fcn(self, num_trials=1000, start_days_from_today=0, time_steps=500, correlated=True, num_graphs=5):
     """
     Simulate and test for KO, KI, and Exercise conditions based on the correlated 
     random walks of stock prices generated. Returns the percentges of the conditions
@@ -351,14 +351,17 @@ class FCN:
         console.
     """
     # Generate random indices for the trials to plot
-    plot_indices = np.random.choice(num_trials, 5, replace=False)
+    plot_indices = np.random.choice(num_trials, num_graphs, replace=False)
     start_idx = start_days_from_today
     end_idx = start_days_from_today + self.tenor
     results = {'KO': [], 'KI': [], 'Exercise': []}
 
     for trial in range(num_trials):
-      # Generate the correlated random walks
-      simulated_prices = self.generate_correlated_random_walks(time_steps)
+      if (correlated):
+        # Generate the correlated random walks
+        simulated_prices = self.generate_correlated_random_walks(time_steps)
+      else:
+        simulated_prices = self.generate_random_walks(time_steps)
       
       ko_flag, ki_flag, exercise_flag = False, True, False
       
@@ -418,6 +421,7 @@ class FCN:
       f'KI Percentage: {ki_percentage:.2f}%, '
       f'Exercise Percentage: {exercise_percentage:.2f}%'
     )
+
     return {
       'KO Percentage': ko_percentage,
       'KI Percentage': ki_percentage,
@@ -479,6 +483,35 @@ class FCN:
         S = stock_prices[n, t-1]
         sigma = vols[n]
         epsilon = epsilon_array[n]
+
+        stock_prices[n, t] = S * np.exp((self.rate - 0.5 * sigma ** 2) * dt + sigma * np.sqrt(dt) * epsilon)
+        
+    return stock_prices
+  
+  def generate_random_walks(self, time_steps):
+    """
+    Simulates random paths of the stocks based on Monte-Carlo simulation.
+
+    Parameters:
+      time_steps: int
+        Amount of days for each simulated random walk.
+
+    Returns:
+      stock_prices: numpy.ndarray
+        A 2D array where each row represents the simulated stock prices for a particular
+        stock over the specified time_steps. The shape of the array is (basket_size, time_steps),
+        where basket_size is the number of stocks in the basket.
+    """
+    vols = [stock.sigma for stock in self.stocks]
+    basket_size = len(self.stocks)
+    stock_prices = np.full((basket_size, time_steps), 100.0)
+
+    for t in range(1, time_steps):
+      for n in range(basket_size):
+        dt = 1 / time_steps
+        S = stock_prices[n, t-1]
+        sigma = vols[n]
+        epsilon = np.random.normal(0, 1)
 
         stock_prices[n, t] = S * np.exp((self.rate - 0.5 * sigma ** 2) * dt + sigma * np.sqrt(dt) * epsilon)
         

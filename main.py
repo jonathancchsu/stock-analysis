@@ -27,13 +27,15 @@ stocks = [NVDA, SMCI, TSM]
 fcn = FCN(stocks, 110, 70, 90, 27, 252, 0.048)
 
 # backtest_fcn params: start_date('YYYY-MM-DD'), end_date('YYYY-MM-DD')
-fcn.backtest_fcn(start_date, end_date)
+# fcn.backtest_fcn(start_date, end_date)
 
 # backtest_fcn_single_date params: date('YYYY-MM-DD')
-fcn.backtest_fcn_single_date(single_date)
+# fcn.backtest_fcn_single_date(single_date)
 
-# simulate_fcn params: num_trials, start_days_from_today, number of days generated
-# fcn.simulate_fcn(50000, 0, 500)
+# simulate_fcn params: num_trials, start_days_from_today, number of days generated, 
+#                      correlated(default=True), number of graphs generated(default=5)
+# fcn.simulate_fcn(1000, 0, 500, True, 5)
+fcn.simulate_fcn(1000, 0, 500, False, 0)
 
 
 ######################Functions for Testing######################
