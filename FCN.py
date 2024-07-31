@@ -336,6 +336,10 @@ class FCN:
         Offset from today to start the testing period.
       time_steps: int 
         Amount of days generated for the simulation.
+      correlated: boolean
+        Whether or not the stocks should be calculated with correlation.
+      num_graphs: int
+        The amount of graphs generated from the simulation.
 
     Returns:
       dict: { 'KO Percentage': ko_percentage, 
